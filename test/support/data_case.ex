@@ -16,6 +16,8 @@ defmodule HonestChat.DataCase do
 
   use ExUnit.CaseTemplate
 
+  alais(Ecto.Adapters.SQL.Sandbox)
+
   using do
     quote do
       alias HonestChat.Repo
@@ -28,8 +30,8 @@ defmodule HonestChat.DataCase do
   end
 
   setup tags do
-    pid = Ecto.Adapters.SQL.Sandbox.start_owner!(HonestChat.Repo, shared: not tags[:async])
-    on_exit(fn -> Ecto.Adapters.SQL.Sandbox.stop_owner(pid) end)
+    pid = Sandbox.start_owner!(HonestChat.Repo, shared: not tags[:async])
+    on_exit(fn -> Sandbox.stop_owner(pid) end)
     :ok
   end
 

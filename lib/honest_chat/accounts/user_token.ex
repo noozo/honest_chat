@@ -1,4 +1,5 @@
 defmodule HonestChat.Accounts.UserToken do
+  @moduledoc false
   use Ecto.Schema
   import Ecto.Query
 

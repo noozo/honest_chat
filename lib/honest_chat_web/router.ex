@@ -20,7 +20,10 @@ defmodule HonestChatWeb.Router do
   scope "/", HonestChatWeb do
     pipe_through :browser
 
-    get "/", PageController, :index
+    live_session :chat,
+      on_mount: HonestChatWeb.Live.Auth do
+      live "/", Live.IndexView
+    end
   end
 
   # Other scopes may use custom stacks.

@@ -1,4 +1,5 @@
 defmodule HonestChatWeb.UserResetPasswordController do
+  @moduledoc false
   use HonestChatWeb, :controller
 
   alias HonestChat.Accounts

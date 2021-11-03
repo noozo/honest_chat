@@ -1,4 +1,5 @@
 defmodule HonestChatWeb.UserSessionController do
+  @moduledoc false
   use HonestChatWeb, :controller
 
   alias HonestChat.Accounts

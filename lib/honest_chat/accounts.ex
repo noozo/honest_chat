@@ -6,7 +6,7 @@ defmodule HonestChat.Accounts do
   import Ecto.Query, warn: false
   alias HonestChat.Repo
 
-  alias HonestChat.Accounts.{User, UserToken, UserNotifier}
+  alias HonestChat.Accounts.{User, UserNotifier, UserToken}
 
   ## Database getters
 

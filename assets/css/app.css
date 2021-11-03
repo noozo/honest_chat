@@ -2,7 +2,7 @@
 @import "tailwindcss/components";
 @import "tailwindcss/utilities";
 
-@import "./components/buttons.css";
+/* @import "./components/buttons.css"; */
 
 /* Alerts and form errors used by phx.new */
 .alert {

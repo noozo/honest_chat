@@ -1,4 +1,5 @@
 defmodule HonestChat.Accounts.UserNotifier do
+  @moduledoc false
   import Swoosh.Email
 
   alias HonestChat.Mailer
