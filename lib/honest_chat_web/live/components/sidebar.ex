@@ -8,8 +8,7 @@ defmodule HonestChatWeb.Live.Components.Sidebar do
 
   @impl true
   def update(%{current_user: current_user} = _assigns, socket) do
-    {:ok,
-     assign(socket, current_user: current_user, user_rooms: Rooms.get_user_rooms(current_user.id))}
+    {:ok, assign(socket, current_user: current_user, user_rooms: Rooms.get_user_rooms(current_user.id))}
   end
 
   @impl true
