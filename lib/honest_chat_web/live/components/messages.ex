@@ -29,7 +29,7 @@ defmodule HonestChatWeb.Live.Components.Messages do
   def render(assigns) do
     ~H"""
     <div class="w-full flex flex-col">
-
+    
       <!-- Top bar -->
       <div class="border-b flex px-6 py-2 items-center">
         <div class="flex flex-col">

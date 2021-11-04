@@ -8,7 +8,8 @@ defmodule HonestChatWeb.Live.Components.Sidebar do
 
   @impl true
   def update(%{current_user: current_user} = _assigns, socket) do
-    {:ok, assign(socket, current_user: current_user, user_rooms: Rooms.get_user_rooms(current_user.id))}
+    {:ok,
+     assign(socket, current_user: current_user, user_rooms: Rooms.get_user_rooms(current_user.id))}
   end
 
   @impl true
@@ -35,7 +36,7 @@ defmodule HonestChatWeb.Live.Components.Sidebar do
           </ul>
         </span>
       </div>
-
+    
       <div class="px-4 mb-2 font-sans">Rooms</div>
       <div class="bg-teal-600 mb-6 py-1 px-4 text-white font-semi-bold ">
         <%= for room <- @user_rooms do %>
