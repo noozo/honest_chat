@@ -4,9 +4,11 @@ defmodule HonestChatWeb.Live.Components.Sidebar do
   """
   use HonestChatWeb, :live_component
 
+  alias HonestChat.Rooms
+
   @impl true
   def update(%{current_user: current_user} = _assigns, socket) do
-    {:ok, assign(socket, current_user: current_user)}
+    {:ok, assign(socket, current_user: current_user, user_rooms: Rooms.get_user_rooms(current_user.id))}
   end
 
   @impl true
@@ -36,7 +38,11 @@ defmodule HonestChatWeb.Live.Components.Sidebar do
 
       <div class="px-4 mb-2 font-sans">Rooms</div>
       <div class="bg-teal-600 mb-6 py-1 px-4 text-white font-semi-bold ">
-        <!--span class="pr-1 text-gray-400">#</span> general -->
+        <%= for room <- @user_rooms do %>
+          <a phx-click="enter-room" phx-value-id={room.id}>
+            <span class="pr-1 text-gray-400">#</span> <%= room.name %>
+          </a>
+        <% end %>
       </div>
     </div>
     """

@@ -8,7 +8,7 @@ defmodule HonestChatWeb.Live.IndexView do
 
   @impl true
   def mount(_params, _session, socket) do
-    {:ok, socket}
+    {:ok, assign(socket, current_room_id: nil)}
   end
 
   @impl true
@@ -22,10 +22,17 @@ defmodule HonestChatWeb.Live.IndexView do
     <div class="w-full border shadow bg-white">
       <div class="flex">
         <.live_component module={Components.Sidebar} id="sidebar" current_user={@current_user} />
-        <.live_component module={Components.Messages} id="messages" />
+        <.live_component module={Components.Messages} id="messages" room_id={@current_room_id} />
       </div>
     </div>
-    <.live_component module={Components.Modal} id="add-room" />
     """
+  end
+
+  # <.live_component module={Components.Modal} id="add-room" />
+
+  @impl true
+  def handle_event("enter-room", %{"id" => room_id} = _event, socket) do
+    IO.inspect("Will enter room #{room_id}")
+    {:noreply, assign(socket, current_room_id: room_id)}
   end
 end
