@@ -32,7 +32,6 @@ defmodule HonestChatWeb.Live.IndexView do
 
   @impl true
   def handle_event("enter-room", %{"id" => room_id} = _event, socket) do
-    IO.inspect("Will enter room #{room_id}")
     {:noreply, assign(socket, current_room_id: room_id)}
   end
 end
