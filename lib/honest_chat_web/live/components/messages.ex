@@ -19,7 +19,7 @@ defmodule HonestChatWeb.Live.Components.Messages do
   @impl true
   def render(%{room: nil} = assigns) do
     ~H"""
-    <div class="w-full flex flex-col">
+    <div class="w-full flex flex-col p-4">
       No room has been joined yet. To join a room click on its name on the sidebar to your left.
     </div>
     """
@@ -29,7 +29,7 @@ defmodule HonestChatWeb.Live.Components.Messages do
   def render(assigns) do
     ~H"""
     <div class="w-full flex flex-col">
-    
+
       <!-- Top bar -->
       <div class="border-b flex px-6 py-2 items-center">
         <div class="flex flex-col">

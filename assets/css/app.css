@@ -4,6 +4,10 @@
 
 /* @import "./components/buttons.css"; */
 
+.link {
+  cursor: pointer;
+}
+
 /* Alerts and form errors used by phx.new */
 .alert {
   padding: 15px;

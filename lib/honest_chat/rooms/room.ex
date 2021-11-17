@@ -3,12 +3,15 @@ defmodule HonestChat.Rooms.Room do
   use Ecto.Schema
   import Ecto.Changeset
 
+  alias HonestChat.Accounts.User
+
   schema "rooms" do
     field :name, :string
     field :description, :string
     field :invite_code, :string
 
-    belongs_to :user, HonestChat.Accounts.User
+    belongs_to :user, User
+    many_to_many :members, User, join_through: "room_members"
 
     timestamps()
   end

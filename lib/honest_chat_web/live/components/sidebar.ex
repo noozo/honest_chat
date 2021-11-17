@@ -7,14 +7,19 @@ defmodule HonestChatWeb.Live.Components.Sidebar do
   alias HonestChat.Rooms
 
   @impl true
-  def update(%{current_user: current_user} = _assigns, socket) do
-    {:ok, assign(socket, current_user: current_user, user_rooms: Rooms.get_user_rooms(current_user.id))}
+  def update(%{current_user: current_user, current_room_id: current_room_id} = _assigns, socket) do
+    {:ok,
+     assign(socket,
+       current_user: current_user,
+       user_rooms: Rooms.get_user_rooms(current_user),
+       current_room_id: current_room_id
+     )}
   end
 
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="bg-indigo-900 text-indigo-200 w-1/5 pb-6 hidden md:block">
+    <div class="bg-indigo-900 text-indigo-200 w-1/4 pb-6 hidden md:block">
       <h1 class="text-white text-xl mb-2 mt-3 px-4 font-sans flex justify-between">
         <span>Honest Chat</span>
         <!--svg class="h-6 w-6 text-indigo-100 fill-current" viewBox="0 0 32 32" >
@@ -39,9 +44,11 @@ defmodule HonestChatWeb.Live.Components.Sidebar do
       <div class="px-4 mb-2 font-sans">Rooms</div>
       <div class="bg-teal-600 mb-6 py-1 px-4 text-white font-semi-bold ">
         <%= for room <- @user_rooms do %>
-          <a phx-click="enter-room" phx-value-id={room.id}>
-            <span class="pr-1 text-gray-400">#</span> <%= room.name %>
-          </a>
+          <div class={if Integer.to_string(room.id) == @current_room_id, do: "bg-blue-800", else: ""}>
+            <a class="link" phx-click="enter-room" phx-value-id={room.id}>
+              <span class="pr-1 text-gray-400">#</span> <%= room.name %>
+            </a>
+          </div>
         <% end %>
       </div>
     </div>
