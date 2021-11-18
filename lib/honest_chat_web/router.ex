@@ -22,6 +22,8 @@ defmodule HonestChatWeb.Router do
 
     live_session :chat,
       on_mount: HonestChatWeb.Live.Auth do
+      live "/rooms/join/:invite_code", Live.JoinRoomView
+
       live "/", Live.IndexView
     end
   end

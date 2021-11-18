@@ -37,6 +37,9 @@ defmodule HonestChatWeb.Live.Components.Messages do
           <div class="text-gray-500 font-thin text-sm">
             <%= @room.description %>
           </div>
+          <div class="text-gray-300 font-thin text-xs">
+            Invite code: <%= @room.invite_code %>
+          </div>
         </div>
       </div>
     </div>

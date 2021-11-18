@@ -20,6 +20,19 @@ defmodule HonestChat.Rooms do
     Repo.get!(Room, id)
   end
 
+  def get_room_by!(opts) do
+    Repo.get_by!(Room, opts)
+  end
+
+  def join(user, room) do
+    room = Repo.preload(room, :members)
+
+    room
+    |> Room.changeset(%{})
+    |> put_assoc(:members, [user | room.members])
+    |> Repo.update()
+  end
+
   def create_room(attrs) when is_map(attrs) do
     user = Accounts.get_user!(attrs.user_id)
 
