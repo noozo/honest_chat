@@ -8,7 +8,7 @@ defmodule HonestChatWeb.Live.Components.Messages do
 
   @impl true
   def update(%{room_id: nil} = _assigns, socket) do
-    {:ok, assign(socket, room: nil)}
+    {:ok, assign(socket, room: nil, invite_link_copied: false)}
   end
 
   @impl true
@@ -29,21 +29,40 @@ defmodule HonestChatWeb.Live.Components.Messages do
   def render(assigns) do
     ~H"""
     <div class="w-full flex flex-col">
-
       <!-- Top bar -->
       <div class="border-b flex px-6 py-2 items-center">
         <div class="flex flex-col">
           <h3 class="text-gray-800 text-md mb-1 font-extrabold">#<%= @room.name %></h3>
-          <div class="text-gray-500 font-thin text-sm">
+          <div class="text-gray-600 text-sm">
             <%= @room.description %>
           </div>
-          <div class="text-gray-300 font-thin text-xs">
+          <div class="text-gray-400 text-sm link">
             Invite code: <%= @room.invite_code %>
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline" fill="none"
+                 viewBox="0 0 24 24" stroke="currentColor"
+                 phx-click="copy_invite_code_link"
+                 phx-value-code={@room.invite_code}
+                 phx-target={@myself}>
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <%= if @invite_link_copied do %>
+              copied <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+            <% end %>
           </div>
         </div>
       </div>
     </div>
     """
+  end
+
+  @impl true
+  def handle_event("copy_invite_code_link", %{"code" => code}, socket) do
+    base_url = HonestChatWeb.Endpoint.url()
+    link = base_url <> Routes.live_path(socket, HonestChatWeb.Live.JoinRoomView, code)
+
+    {:noreply, socket |> assign(invite_link_copied: true) |> push_event("copy_invite_code_link", %{link: link})}
   end
 end
 
