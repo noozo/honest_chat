@@ -19,7 +19,7 @@ defmodule HonestChatWeb.Live.Components.Sidebar do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="bg-indigo-900 text-indigo-200 w-1/4 pb-6 hidden md:block">
+    <div class="bg-indigo-900 text-indigo-200 w-1/4 pb-6 md:block">
       <h1 class="text-white text-xl mb-2 mt-3 px-4 font-sans flex justify-between">
         <span>Honest Chat</span>
         <!--svg class="h-6 w-6 text-indigo-100 fill-current" viewBox="0 0 32 32" >
@@ -40,7 +40,7 @@ defmodule HonestChatWeb.Live.Components.Sidebar do
           </ul>
         </span>
       </div>
-    
+
       <div class="px-4 mb-2 font-sans">Rooms</div>
       <div class="bg-teal-600 mb-6 py-1 px-4 text-white font-semi-bold ">
         <%= for room <- @user_rooms do %>

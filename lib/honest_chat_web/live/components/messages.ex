@@ -8,12 +8,35 @@ defmodule HonestChatWeb.Live.Components.Messages do
 
   @impl true
   def update(%{room_id: nil} = _assigns, socket) do
-    {:ok, assign(socket, room: nil, invite_link_copied: false)}
+    {:ok, assign(socket, room: nil)}
   end
 
   @impl true
-  def update(%{room_id: room_id} = _assigns, socket) do
-    {:ok, assign(socket, room: Rooms.get_room!(room_id))}
+  def update(%{id: id, current_user: current_user, room_id: room_id} = _assigns, socket) do
+    # Push event asking to load messages from local storage
+    {:ok, socket
+    |> assign(
+      id: id,
+      room: Rooms.get_room!(room_id),
+      invite_link_copied: false,
+      messages: [],
+      current_user: current_user)
+    |> push_event("load_messages", %{room_id: room_id})}
+  end
+
+  # Called via send_update (based on pubsub)
+  @impl true
+  def update(%{new_message: message} = _assigns, socket) do
+    {:ok, socket
+      |> assign(messages: [message | socket.assigns.messages] |> Enum.reverse())
+      |> push_event(
+        "new_message",
+        %{
+          room_id: socket.assigns.room.id,
+          field_id: "message_body",
+          message: message
+        }
+      )}
   end
 
   @impl true
@@ -28,7 +51,7 @@ defmodule HonestChatWeb.Live.Components.Messages do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="w-full flex flex-col">
+    <div id={@id} class="w-full flex flex-col" phx-hook="LoadMessagesFromLocalStorage">
       <!-- Top bar -->
       <div class="border-b flex px-6 py-2 items-center">
         <div class="flex flex-col">
@@ -53,6 +76,30 @@ defmodule HonestChatWeb.Live.Components.Messages do
           </div>
         </div>
       </div>
+
+      <!-- Chat messages -->
+      <div class="px-6 py-4 flex-1 overflow-scroll-x">
+        <%= for message <- @messages do %>
+        <!-- A message -->
+        <div class="flex items-start mb-4">
+          <img src={gravatar_url(message["user_email"])} class="w-10 h-10 rounded mr-3" />
+          <div class="flex flex-col">
+            <div class="flex items-end">
+              <span class="font-bold text-md mr-2 font-sans"><%= message["user_email"] %></span>
+              <span class="text-gray-500 text-xs font-400"><%= message["timestamp"] %></span>
+            </div>
+            <p class="font-400 text-md text-gray-800 pt-1"><%= message["body"] %></p>
+          </div>
+        </div>
+        <% end %>
+      </div>
+
+      <.form let={f} for={:message}, phx_submit="submit" phx-target={@myself}>
+        <div class="flex m-6 rounded-lg border-2 border-gray-500 overflow-hidden">
+          <%= submit "+", class: "text-3xl text-gray-500 px-3 border-r-2 border-gray-500" %>
+          <%= text_input f, :body, class: "w-full px-5", id: "message_body" %>
+        </div>
+      </.form>
     </div>
     """
   end
@@ -62,60 +109,41 @@ defmodule HonestChatWeb.Live.Components.Messages do
     base_url = HonestChatWeb.Endpoint.url()
     link = base_url <> Routes.live_path(socket, HonestChatWeb.Live.JoinRoomView, code)
 
-    {:noreply, socket |> assign(invite_link_copied: true) |> push_event("copy_invite_code_link", %{link: link})}
+    {:noreply,
+     socket
+     |> assign(invite_link_copied: true)
+     |> push_event("copy_invite_code_link", %{link: link})}
+  end
+
+  @impl true
+  def handle_event("submit", %{"message" => %{"body" => message_body}}, socket) do
+    if String.trim(message_body) == "" do
+      {:noreply, socket}
+    else
+      message = %{
+        "user_email" => socket.assigns.current_user.email,
+        "timestamp" => DateTime.now!("Etc/UTC"),
+        "body" => message_body
+      }
+      Phoenix.PubSub.broadcast(
+        HonestChat.PubSub,
+        "rooms",
+        {:message, socket.assigns.room.id, message}
+      )
+      {:noreply, socket |> push_event("clear_input", %{field_id: "message_body"})}
+    end
+  end
+
+  def handle_event("load-messages", nil, socket) do
+    {:noreply, socket |> assign(messages: [])}
+  end
+
+  def handle_event("load-messages", messages, socket) do
+    {:noreply, socket |> assign(messages: messages)}
+  end
+
+  defp gravatar_url(email) do
+    hash = Base.encode16(:erlang.md5(email), case: :lower)
+    "https://www.gravatar.com/avatar/#{hash}?s=200"
   end
 end
-
-#
-# <!-- Chat messages -->
-# <div class="px-6 py-4 flex-1 overflow-scroll-x">
-#   <!-- A message -->
-#     <div class="flex items-start mb-4">
-#       <img src="https://avatars2.githubusercontent.com/u/343407?s=460&v=4" class="w-10 h-10 rounded mr-3" />
-#       <div class="flex flex-col">
-#         <div class="flex items-end">
-#           <span class="font-bold text-md mr-2 font-sans">killgt</span>
-#           <span class="text-gray-500 text-xs font-400">11:46</span>
-#         </div>
-#         <p class="font-400 text-md text-gray-800 pt-1">The slack from the other side.</p>
-#       </div>
-#     </div>
-#
-#     <!-- A message -->
-#     <div class="flex items-start mb-4">
-#       <img src="https://i.imgur.com/8Km9tLL.jpg" class="w-10 h-10 rounded mr-3" />
-#       <div class="flex flex-col">
-#         <div class="flex items-end">
-#           <span class="font-bold text-md mr-2 font-sans">Olivia Dunham</span>
-#           <span class="text-gray-500 text-xs font-400">12:45</span>
-#         </div>
-#         <p class="font-400 text-md text-gray-800 pt-1">
-#           How are we supposed to control the marquee space without an utility for it? I propose this:</p>
-#           <div class="bg-gray-100 border border-gray-200 font-mono rounded p-3 mt-2 whitespace-pre">
-#              .marquee-lightspeed { -webkit-marquee-speed: fast; }
-# .marquee-lightspeeder { -webkit-marquee-speed: faster; }</div>
-#       </div>
-#     </div>
-#
-#     <!-- A message -->
-#     <div class="flex items-start">
-#       <img src="https://i.imgur.com/qACoKgY.jpg" class="w-10 h-10 rounded mr-3" />
-#       <div class="flex flex-col">
-#         <div class="flex items-end">
-#           <span class="font-bold text-md mr-2 font-sans">Adam Bishop</span>
-#           <span class="text-gray-500 text-xs font-400">12:46</span>
-#         </div>
-#         <p class="font-400 text-md text-gray-800 pt-1"><a href="#" class="text-blue-500">@Olivia Dunham</a> the
-#              size of the generated CSS is creating a singularity in space/time, we must stop adding more utilities
-#              before it's too late!</p>
-#       </div>
-#     </div>
-#
-#     <!-- Ignore -->
-#     <br><br><br><br><br><br><br><br><br><br><br>
-#   </div>
-#
-#   <div class="flex m-6 rounded-lg border-2 border-gray-500 overflow-hidden">
-#     <span class="text-3xl text-gray-500 px-3 border-r-2 border-gray-500">+</span>
-#     <input type="text" class="w-full px-4" placeholder="Message to #general"/>
-#   </div>
